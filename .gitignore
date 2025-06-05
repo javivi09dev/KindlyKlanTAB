@@ -4,6 +4,8 @@
 *.iml
 *.ipr
 *.iws
+.vscode/
+bin/
 
 # IntelliJ
 out/

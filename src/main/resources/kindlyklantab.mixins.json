@@ -1,9 +1,15 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "me.javivi.kktab.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "package": "me.javivi.kktab.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "kindlyklantab.refmap.json",
   "mixins": [
+    "PlayerManagerMixin"
+  ],
+  "client": [],
+  "server": [
+    "PlayerManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -3,27 +3,27 @@
   "id": "kindlyklantab",
   "version": "${version}",
   "name": "KindlyKlanTAB",
-  "description": "Mod that controls the tab",
-  "authors": [],
+  "description": "Mod server-side para gestionar el TAB y anuncios automáticos en el chat con integración LuckPerms",
+  "authors": ["Javivi"],
   "contact": {},
   "license": "All-Rights-Reserved",
   "icon": "assets/kindlyklantab/icon.png",
   "environment": "server",
   "entrypoints": {
     "main": [
-      "me.javivi.kktab.Kindlyklantab"
+      "me.javivi.kktab.KindlyKlanTab"
     ]
   },
   "mixins": [
-    "kindlyklantab.mixins.json",
-    {
-      "config": "kindlyklantab.client.mixins.json",
-      "environment": "client"
-    }
+    "kindlyklantab.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "fabric": "*",
+    "fabric-api": "*",
     "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "luckperms": "*",
+    "flamingo": "*"
   }
 }
