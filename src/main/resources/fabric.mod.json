@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "kindlyklantab",
+  "version": "${version}",
+  "name": "KindlyKlanTAB",
+  "description": "Mod that controls the tab",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/kindlyklantab/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "main": [
+      "me.javivi.kktab.Kindlyklantab"
+    ]
+  },
+  "mixins": [
+    "kindlyklantab.mixins.json",
+    {
+      "config": "kindlyklantab.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
