@@ -1,6 +1,6 @@
 # KindlyKlanTAB
 
-Un mod server-side para Fabric 1.21.1 que permite personalizar completamente el TAB (lista de jugadores) y gestionar anuncios automáticos en el chat. **¡Ahora con integración completa con LuckPerms!**
+Un mod server-side para Fabric 1.21.1 que permite personalizar completamente el TAB (lista de jugadores) y gestionar anuncios automáticos en el chat.
 
 ## ✨ Características
 
@@ -10,7 +10,7 @@ Un mod server-side para Fabric 1.21.1 que permite personalizar completamente el 
 - **Actualización automática** en tiempo real
 - **Sistema de prioridades** para grupos de jugadores
 - **Soporte para colores** y formato de Minecraft
-- **🔥 Integración completa con LuckPerms**
+- **Integración completa con LuckPerms**
 
 ### 📢 Sistema de Anuncios
 - **Anuncios automáticos** en intervalos configurables
