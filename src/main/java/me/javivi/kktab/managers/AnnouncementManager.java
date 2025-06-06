@@ -74,6 +74,8 @@ public class AnnouncementManager {
         AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
         
         String message = config.prefix + placeholderResolver.resolve(announcement.message);
+        // Convertir \n en saltos de línea reales para mensajes multilinea
+        message = message.replace("\\n", "\n");
         Text messageText = Text.literal(message);
         
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
@@ -89,6 +91,8 @@ public class AnnouncementManager {
     public void sendCustomAnnouncement(String message) {
         AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
         String fullMessage = config.prefix + placeholderResolver.resolve(message);
+        // Convertir \n en saltos de línea reales para mensajes multilinea
+        fullMessage = fullMessage.replace("\\n", "\n");
         Text messageText = Text.literal(fullMessage);
         
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
@@ -209,6 +213,7 @@ public class AnnouncementManager {
     
     public void reload() {
         shutdown();
+        // Recrear el scheduler después de hacer shutdown
         this.scheduler = Executors.newScheduledThreadPool(1);
         startAnnouncementScheduler();
         KindlyKlanTab.LOGGER.info("AnnouncementManager recargado");

@@ -9,6 +9,7 @@ import me.javivi.kktab.managers.LuckPermsManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,30 @@ public class KindlyKlanTab implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
             announcementManager.shutdown();
             LOGGER.info("KindlyKlanTAB desactivado");
+        });
+        
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            // Actualizar TAB cuando un jugador se conecta
+            try {
+                if (tabManager != null) {
+                    // Programar actualización en el siguiente tick
+                    server.execute(() -> tabManager.updateTabList());
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Error actualizando TAB al conectar jugador: " + e.getMessage());
+            }
+        });
+        
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            // Actualizar TAB cuando un jugador se desconecta
+            try {
+                if (tabManager != null) {
+                    // Programar actualización en el siguiente tick
+                    server.execute(() -> tabManager.updateTabList());
+                }
+            } catch (Exception e) {
+                LOGGER.debug("Error actualizando TAB al desconectar jugador: " + e.getMessage());
+            }
         });
     }
     

@@ -168,7 +168,7 @@ public class TabManager {
             case "mod":
                 return server.getPlayerManager().isOperator(player.getGameProfile());
             case "vip":
-                return false; // TODO: Implementar sistema personalizado si no hay LuckPerms
+                return false; 
             default:
                 return true;
         }
@@ -182,6 +182,8 @@ public class TabManager {
     
     public void reload() {
         shutdown();
+        // Recrear el scheduler después de hacer shutdown
+        this.scheduler = Executors.newScheduledThreadPool(1);
         startTabUpdater();
         updateTabList();
         KindlyKlanTab.LOGGER.info("TabManager recargado");

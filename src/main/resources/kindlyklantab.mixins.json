@@ -5,13 +5,11 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "kindlyklantab.refmap.json",
   "mixins": [
-    "PlayerManagerMixin"
   ],
   "client": [],
   "server": [
-    "PlayerManagerMixin"
   ],
   "injectors": {
-    "defaultRequire": 1
+    "defaultRequire": 0
   }
 }

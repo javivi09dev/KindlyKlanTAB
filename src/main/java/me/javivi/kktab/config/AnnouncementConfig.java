@@ -7,17 +7,51 @@ public class AnnouncementConfig {
     public boolean enabled = true;
     public int interval = 6000; // ticks (5 minutos por defecto)
     public boolean randomOrder = false;
-    public String prefix = "§8[§6Anuncio§8] §r";
+    public String prefix = ""; // Sin prefix por defecto
     
     public List<Announcement> announcements = new ArrayList<>();
     
     public AnnouncementConfig() {
-        // Anuncios por defecto
-        announcements.add(new Announcement("§e¡Bienvenido al servidor! §7Disfruta tu estadía."));
-        announcements.add(new Announcement("§a¿Necesitas ayuda? §7Usa §e/help §7para ver los comandos disponibles."));
-        announcements.add(new Announcement("§b¡Únete a nuestro Discord! §7discord.gg/servidor"));
-        announcements.add(new Announcement("§d¡Visita nuestra página web! §7www.servidor.com"));
-        announcements.add(new Announcement("§c¡Recuerda leer las reglas! §7Usa §e/rules"));
+        // Anuncios por defecto más bonitos y sin prefix
+        announcements.add(new Announcement(
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+            "§r§6§l                    ¡BIENVENIDO AL SERVIDOR!\n" +
+            "§r§7                  Esperamos que disfrutes tu estadía\n" +
+            "§r§e                    Usa §a/help §epara ver comandos\n" +
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        ));
+        
+        announcements.add(new Announcement(
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+            "§r§b§l                     ÚNETE A NUESTRO DISCORD\n" +
+            "§r§7                    Conecta con la comunidad\n" +
+            "§r§e                      §adiscord.gg/servidor\n" +
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        ));
+        
+        announcements.add(new Announcement(
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+            "§r§d§l                    VISITA NUESTRA WEB\n" +
+            "§r§7                 Encuentra guías y noticias\n" +
+            "§r§e                     §awww.servidor.com\n" +
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        ));
+        
+        announcements.add(new Announcement(
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+            "§r§c§l                      REGLAS DEL SERVIDOR\n" +
+            "§r§7                   Es importante que las conozcas\n" +
+            "§r§e                        Usa §a/rules\n" +
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        ));
+        
+        announcements.add(new Announcement(
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n" +
+            "§r§a§l                     ESTADO DEL SERVIDOR\n" +
+            "§r§7                    Jugadores online: §e{PLAYER_COUNT}§7/§e{MAX_PLAYERS}\n" +
+            "§r§7                      TPS: §e{TPS} §7| Uptime: §e{UPTIME}\n" +
+            "§8§l▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        ));
     }
     
     public static class Announcement {
