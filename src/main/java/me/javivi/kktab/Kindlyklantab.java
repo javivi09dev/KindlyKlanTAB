@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KindlyKlanTab implements ModInitializer {
+public class KindlyKlantab implements ModInitializer {
     public static final String MOD_ID = "kindlyklantab";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     
@@ -91,3 +91,5 @@ public class KindlyKlanTab implements ModInitializer {
         return luckPermsManager;
     }
 }
+
+// actualizar

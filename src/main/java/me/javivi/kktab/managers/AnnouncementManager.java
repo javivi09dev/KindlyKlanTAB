@@ -1,6 +1,6 @@
 package me.javivi.kktab.managers;
 
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import me.javivi.kktab.config.AnnouncementConfig;
 import me.javivi.kktab.utils.PlaceholderResolver;
 import net.minecraft.server.MinecraftServer;
@@ -26,24 +26,24 @@ public class AnnouncementManager {
         this.scheduler = Executors.newScheduledThreadPool(1);
         
         startAnnouncementScheduler();
-        KindlyKlanTab.LOGGER.info("AnnouncementManager inicializado");
+        KindlyKlantab.LOGGER.info("AnnouncementManager inicializado");
     }
     
     private void startAnnouncementScheduler() {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         if (!config.enabled || config.announcements.isEmpty()) return;
         
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 sendNextAnnouncement();
             } catch (Exception e) {
-                KindlyKlanTab.LOGGER.error("Error enviando anuncio", e);
+                KindlyKlantab.LOGGER.error("Error enviando anuncio", e);
             }
         }, config.interval * 50L, config.interval * 50L, TimeUnit.MILLISECONDS); // Convertir ticks a ms
     }
     
     private void sendNextAnnouncement() {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         if (!config.enabled || config.announcements.isEmpty()) return;
         
         List<AnnouncementConfig.Announcement> activeAnnouncements = new ArrayList<>();
@@ -71,7 +71,7 @@ public class AnnouncementManager {
     }
     
     public void sendAnnouncement(AnnouncementConfig.Announcement announcement) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         
         String message = config.prefix + placeholderResolver.resolve(announcement.message);
         // Convertir \n en saltos de línea reales para mensajes multilinea
@@ -85,11 +85,11 @@ public class AnnouncementManager {
             }
         }
         
-        KindlyKlanTab.LOGGER.debug("Anuncio enviado: " + announcement.message);
+        KindlyKlantab.LOGGER.debug("Anuncio enviado: " + announcement.message);
     }
     
     public void sendCustomAnnouncement(String message) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         String fullMessage = config.prefix + placeholderResolver.resolve(message);
         // Convertir \n en saltos de línea reales para mensajes multilinea
         fullMessage = fullMessage.replace("\\n", "\n");
@@ -99,7 +99,7 @@ public class AnnouncementManager {
             player.sendMessage(messageText, false);
         }
         
-        KindlyKlanTab.LOGGER.info("Anuncio personalizado enviado: " + message);
+        KindlyKlantab.LOGGER.info("Anuncio personalizado enviado: " + message);
     }
     
     private boolean hasPermission(ServerPlayerEntity player, String permission) {
@@ -107,12 +107,12 @@ public class AnnouncementManager {
         
         // Intentar usar LuckPerms si está disponible
         try {
-            LuckPermsManager luckPerms = KindlyKlanTab.getLuckPermsManager();
+            LuckPermsManager luckPerms = KindlyKlantab.getLuckPermsManager();
             if (luckPerms != null && luckPerms.isAvailable()) {
                 return luckPerms.hasPermission(player, permission);
             }
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("LuckPerms no disponible para verificar permiso: " + permission);
+            KindlyKlantab.LOGGER.debug("LuckPerms no disponible para verificar permiso: " + permission);
         }
         
         // Sistema de permisos fallback integrado
@@ -187,21 +187,21 @@ public class AnnouncementManager {
     }
     
     public void addAnnouncement(String message, String permission) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         AnnouncementConfig.Announcement announcement = new AnnouncementConfig.Announcement(message);
         announcement.permission = permission;
         config.announcements.add(announcement);
-        KindlyKlanTab.getConfigManager().saveAnnouncementConfig();
-        KindlyKlanTab.LOGGER.info("Anuncio añadido: " + message);
+        KindlyKlantab.getConfigManager().saveAnnouncementConfig();
+        KindlyKlantab.LOGGER.info("Anuncio añadido: " + message);
     }
     
     public void removeAnnouncement(int index) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         if (index >= 0 && index < config.announcements.size()) {
             String removedMessage = config.announcements.get(index).message;
             config.announcements.remove(index);
-            KindlyKlanTab.getConfigManager().saveAnnouncementConfig();
-            KindlyKlanTab.LOGGER.info("Anuncio eliminado: " + removedMessage);
+            KindlyKlantab.getConfigManager().saveAnnouncementConfig();
+            KindlyKlantab.LOGGER.info("Anuncio eliminado: " + removedMessage);
         }
     }
     
@@ -216,6 +216,6 @@ public class AnnouncementManager {
         // Recrear el scheduler después de hacer shutdown
         this.scheduler = Executors.newScheduledThreadPool(1);
         startAnnouncementScheduler();
-        KindlyKlanTab.LOGGER.info("AnnouncementManager recargado");
+        KindlyKlantab.LOGGER.info("AnnouncementManager recargado");
     }
 } 

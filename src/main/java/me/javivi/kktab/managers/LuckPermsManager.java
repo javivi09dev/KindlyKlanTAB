@@ -1,6 +1,6 @@
 package me.javivi.kktab.managers;
 
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,13 +20,13 @@ public class LuckPermsManager {
             Class<?> luckPermsProviderClass = Class.forName("net.luckperms.api.LuckPermsProvider");
             luckPerms = luckPermsProviderClass.getMethod("get").invoke(null);
             isAvailable = true;
-            KindlyKlanTab.LOGGER.info("✅ Integración con LuckPerms activada");
+            KindlyKlantab.LOGGER.info("✅ Integración con LuckPerms activada");
         } catch (ClassNotFoundException e) {
             isAvailable = false;
-            KindlyKlanTab.LOGGER.info("⚠️ LuckPerms no encontrado, usando sistema de permisos básico");
+            KindlyKlantab.LOGGER.info("⚠️ LuckPerms no encontrado, usando sistema de permisos básico");
         } catch (Exception e) {
             isAvailable = false;
-            KindlyKlanTab.LOGGER.warn("⚠️ Error inicializando LuckPerms: " + e.getMessage());
+            KindlyKlantab.LOGGER.warn("⚠️ Error inicializando LuckPerms: " + e.getMessage());
         }
     }
     
@@ -47,7 +47,7 @@ public class LuckPermsManager {
             Object metaData = cachedData.getClass().getMethod("getMetaData").invoke(cachedData);
             return (String) metaData.getClass().getMethod("getPrefix").invoke(metaData);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo prefijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo prefijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
             return null;
         }
     }
@@ -65,7 +65,7 @@ public class LuckPermsManager {
             Object metaData = cachedData.getClass().getMethod("getMetaData").invoke(cachedData);
             return (String) metaData.getClass().getMethod("getSuffix").invoke(metaData);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo sufijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo sufijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
             return null;
         }
     }
@@ -81,7 +81,7 @@ public class LuckPermsManager {
             
             return (String) user.getClass().getMethod("getPrimaryGroup").invoke(user);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo grupo principal de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo grupo principal de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
             return null;
         }
     }
@@ -101,7 +101,7 @@ public class LuckPermsManager {
             Object result = permissionData.getClass().getMethod("checkPermission", String.class).invoke(permissionData, permission);
             return (Boolean) result.getClass().getMethod("asBoolean").invoke(result);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error verificando permiso " + permission + " para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error verificando permiso " + permission + " para " + player.getName().getString() + ": " + e.getMessage());
             return false;
         }
     }
@@ -123,7 +123,7 @@ public class LuckPermsManager {
             }
             return 0;
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo peso del grupo para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo peso del grupo para " + player.getName().getString() + ": " + e.getMessage());
             return 0;
         }
     }
@@ -141,7 +141,7 @@ public class LuckPermsManager {
             Object metaData = cachedData.getClass().getMethod("getMetaData").invoke(cachedData);
             return (String) metaData.getClass().getMethod("getMetaValue", String.class).invoke(metaData, key);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo meta " + key + " para " + player.getName().getString() + ": " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo meta " + key + " para " + player.getName().getString() + ": " + e.getMessage());
             return null;
         }
     }
@@ -155,7 +155,7 @@ public class LuckPermsManager {
             Object userManager = luckPerms.getClass().getMethod("getUserManager").invoke(luckPerms);
             return userManager.getClass().getMethod("getUser", UUID.class).invoke(userManager, uuid);
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error obteniendo usuario de LuckPerms: " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo usuario de LuckPerms: " + e.getMessage());
             return null;
         }
     }

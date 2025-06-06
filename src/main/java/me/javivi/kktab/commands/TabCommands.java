@@ -3,7 +3,7 @@ package me.javivi.kktab.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import me.javivi.kktab.config.TabConfig;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -36,21 +36,21 @@ public class TabCommands {
     
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         try {
-            KindlyKlanTab.getConfigManager().reloadConfigs();
-            KindlyKlanTab.getTabManager().reload();
+            KindlyKlantab.getConfigManager().reloadConfigs();
+            KindlyKlantab.getTabManager().reload();
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Configuración del TAB recargada correctamente"), false);
         } catch (Exception e) {
             context.getSource().sendFeedback(() -> 
                 Text.literal("§c✗ Error recargando configuración: " + e.getMessage()), false);
-            KindlyKlanTab.LOGGER.error("Error recargando configuración", e);
+            KindlyKlantab.LOGGER.error("Error recargando configuración", e);
         }
         return 1;
     }
     
     private static int updateTab(CommandContext<ServerCommandSource> context) {
         try {
-            KindlyKlanTab.getTabManager().updateTabList();
+            KindlyKlantab.getTabManager().updateTabList();
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ TAB actualizado manualmente"), false);
         } catch (Exception e) {
@@ -63,10 +63,10 @@ public class TabCommands {
     private static int setHeader(CommandContext<ServerCommandSource> context) {
         String header = StringArgumentType.getString(context, "text");
         
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         config.header = header;
-        KindlyKlanTab.getConfigManager().saveTabConfig();
-        KindlyKlanTab.getTabManager().updateTabList();
+        KindlyKlantab.getConfigManager().saveTabConfig();
+        KindlyKlantab.getTabManager().updateTabList();
         
         context.getSource().sendFeedback(() -> 
             Text.literal("§a✓ Header del TAB actualizado"), false);
@@ -76,10 +76,10 @@ public class TabCommands {
     private static int setFooter(CommandContext<ServerCommandSource> context) {
         String footer = StringArgumentType.getString(context, "text");
         
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         config.footer = footer;
-        KindlyKlanTab.getConfigManager().saveTabConfig();
-        KindlyKlanTab.getTabManager().updateTabList();
+        KindlyKlantab.getConfigManager().saveTabConfig();
+        KindlyKlantab.getTabManager().updateTabList();
         
         context.getSource().sendFeedback(() -> 
             Text.literal("§a✓ Footer del TAB actualizado"), false);
@@ -87,12 +87,12 @@ public class TabCommands {
     }
     
     private static int toggleTab(CommandContext<ServerCommandSource> context) {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         config.enabled = !config.enabled;
-        KindlyKlanTab.getConfigManager().saveTabConfig();
+        KindlyKlantab.getConfigManager().saveTabConfig();
         
         if (config.enabled) {
-            KindlyKlanTab.getTabManager().reload();
+            KindlyKlantab.getTabManager().reload();
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ TAB personalizado activado"), false);
         } else {
@@ -103,7 +103,7 @@ public class TabCommands {
     }
     
     private static int showInfo(CommandContext<ServerCommandSource> context) {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         
         context.getSource().sendFeedback(() -> Text.literal(
             "§6§l═══════════ KindlyKlanTAB Info ═══════════\n" +

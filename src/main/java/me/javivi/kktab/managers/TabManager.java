@@ -1,6 +1,6 @@
 package me.javivi.kktab.managers;
 
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import me.javivi.kktab.config.TabConfig;
 import me.javivi.kktab.utils.PlaceholderResolver;
 import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
@@ -23,24 +23,24 @@ public class TabManager {
         this.scheduler = Executors.newScheduledThreadPool(1);
         
         startTabUpdater();
-        KindlyKlanTab.LOGGER.info("TabManager inicializado");
+        KindlyKlantab.LOGGER.info("TabManager inicializado");
     }
     
     private void startTabUpdater() {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         if (!config.enabled) return;
         
         scheduler.scheduleAtFixedRate(() -> {
             try {
                 updateTabList();
             } catch (Exception e) {
-                KindlyKlanTab.LOGGER.error("Error actualizando TAB", e);
+                KindlyKlantab.LOGGER.error("Error actualizando TAB", e);
             }
         }, 0, config.updateInterval * 50L, TimeUnit.MILLISECONDS); // Convertir ticks a ms
     }
     
     public void updateTabList() {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         if (!config.enabled || server == null) return;
         
         String header = placeholderResolver.resolve(config.header);
@@ -61,7 +61,7 @@ public class TabManager {
     }
     
     private void updatePlayerName(ServerPlayerEntity player) {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         TabConfig.TabGroup group = getPlayerGroup(player);
         
         String nameFormat = config.nameFormat
@@ -78,11 +78,11 @@ public class TabManager {
     }
     
     private TabConfig.TabGroup getPlayerGroup(ServerPlayerEntity player) {
-        TabConfig config = KindlyKlanTab.getConfigManager().getTabConfig();
+        TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
         
         // Intentar usar LuckPerms si está disponible
         try {
-            LuckPermsManager luckPerms = KindlyKlanTab.getLuckPermsManager();
+            LuckPermsManager luckPerms = KindlyKlantab.getLuckPermsManager();
             if (luckPerms != null && luckPerms.isAvailable()) {
                 String primaryGroup = luckPerms.getPrimaryGroup(player);
                 int weight = luckPerms.getWeight(player);
@@ -113,7 +113,7 @@ public class TabManager {
             }
         } catch (Exception e) {
             // Fallback silencioso si LuckPerms no está disponible
-            KindlyKlanTab.LOGGER.debug("LuckPerms no disponible, usando sistema de grupos básico");
+            KindlyKlantab.LOGGER.debug("LuckPerms no disponible, usando sistema de grupos básico");
         }
         
         // Fallback al sistema original
@@ -145,7 +145,7 @@ public class TabManager {
         
         // Intentar usar LuckPerms si está disponible
         try {
-            LuckPermsManager luckPerms = KindlyKlanTab.getLuckPermsManager();
+            LuckPermsManager luckPerms = KindlyKlantab.getLuckPermsManager();
             if (luckPerms != null && luckPerms.isAvailable()) {
                 // Para grupos, verificar si es el grupo principal o si tiene el permiso
                 String primaryGroup = luckPerms.getPrimaryGroup(player);
@@ -186,6 +186,6 @@ public class TabManager {
         this.scheduler = Executors.newScheduledThreadPool(1);
         startTabUpdater();
         updateTabList();
-        KindlyKlanTab.LOGGER.info("TabManager recargado");
+        KindlyKlantab.LOGGER.info("TabManager recargado");
     }
 } 

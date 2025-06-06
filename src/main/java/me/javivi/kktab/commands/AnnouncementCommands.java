@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import me.javivi.kktab.config.AnnouncementConfig;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
@@ -45,7 +45,7 @@ public class AnnouncementCommands {
         String message = StringArgumentType.getString(context, "message");
         
         try {
-            KindlyKlanTab.getAnnouncementManager().sendCustomAnnouncement(message);
+            KindlyKlantab.getAnnouncementManager().sendCustomAnnouncement(message);
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Anuncio enviado"), false);
         } catch (Exception e) {
@@ -59,7 +59,7 @@ public class AnnouncementCommands {
         String message = StringArgumentType.getString(context, "message");
         
         try {
-            KindlyKlanTab.getAnnouncementManager().addAnnouncement(message, "");
+            KindlyKlantab.getAnnouncementManager().addAnnouncement(message, "");
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Anuncio añadido a la lista automática"), false);
         } catch (Exception e) {
@@ -73,14 +73,14 @@ public class AnnouncementCommands {
         int index = IntegerArgumentType.getInteger(context, "index");
         
         try {
-            AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+            AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
             if (index >= config.announcements.size()) {
                 context.getSource().sendFeedback(() -> 
                     Text.literal("§c✗ Índice inválido. Usa /kkannounce list para ver los anuncios"), false);
                 return 0;
             }
             
-            KindlyKlanTab.getAnnouncementManager().removeAnnouncement(index);
+            KindlyKlantab.getAnnouncementManager().removeAnnouncement(index);
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Anuncio eliminado"), false);
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class AnnouncementCommands {
     }
     
     private static int listAnnouncements(CommandContext<ServerCommandSource> context) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         
         if (config.announcements.isEmpty()) {
             context.getSource().sendFeedback(() -> 
@@ -114,8 +114,8 @@ public class AnnouncementCommands {
     
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
         try {
-            KindlyKlanTab.getConfigManager().reloadConfigs();
-            KindlyKlanTab.getAnnouncementManager().reload();
+            KindlyKlantab.getConfigManager().reloadConfigs();
+            KindlyKlantab.getAnnouncementManager().reload();
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Configuración de anuncios recargada"), false);
         } catch (Exception e) {
@@ -126,12 +126,12 @@ public class AnnouncementCommands {
     }
     
     private static int toggleAnnouncements(CommandContext<ServerCommandSource> context) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         config.enabled = !config.enabled;
-        KindlyKlanTab.getConfigManager().saveAnnouncementConfig();
+        KindlyKlantab.getConfigManager().saveAnnouncementConfig();
         
         if (config.enabled) {
-            KindlyKlanTab.getAnnouncementManager().reload();
+            KindlyKlantab.getAnnouncementManager().reload();
             context.getSource().sendFeedback(() -> 
                 Text.literal("§a✓ Anuncios automáticos activados"), false);
         } else {
@@ -144,10 +144,10 @@ public class AnnouncementCommands {
     private static int setInterval(CommandContext<ServerCommandSource> context) {
         int ticks = IntegerArgumentType.getInteger(context, "ticks");
         
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         config.interval = ticks;
-        KindlyKlanTab.getConfigManager().saveAnnouncementConfig();
-        KindlyKlanTab.getAnnouncementManager().reload();
+        KindlyKlantab.getConfigManager().saveAnnouncementConfig();
+        KindlyKlantab.getAnnouncementManager().reload();
         
         int seconds = ticks / 20;
         context.getSource().sendFeedback(() -> 
@@ -156,7 +156,7 @@ public class AnnouncementCommands {
     }
     
     private static int showInfo(CommandContext<ServerCommandSource> context) {
-        AnnouncementConfig config = KindlyKlanTab.getConfigManager().getAnnouncementConfig();
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
         
         int seconds = config.interval / 20;
         context.getSource().sendFeedback(() -> Text.literal(

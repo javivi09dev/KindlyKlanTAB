@@ -2,7 +2,7 @@ package me.javivi.kktab.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class ConfigManager {
         try {
             Files.createDirectories(configDir);
         } catch (IOException e) {
-            KindlyKlanTab.LOGGER.error("Error creando directorio de configuración", e);
+            KindlyKlantab.LOGGER.error("Error creando directorio de configuración", e);
         }
     }
     
@@ -36,14 +36,14 @@ public class ConfigManager {
             if (Files.exists(tabConfigPath)) {
                 String content = Files.readString(tabConfigPath);
                 tabConfig = GSON.fromJson(content, TabConfig.class);
-                KindlyKlanTab.LOGGER.info("Configuración del TAB cargada");
+                KindlyKlantab.LOGGER.info("Configuración del TAB cargada");
             } else {
                 tabConfig = new TabConfig();
                 saveTabConfig();
-                KindlyKlanTab.LOGGER.info("Configuración del TAB creada por defecto");
+                KindlyKlantab.LOGGER.info("Configuración del TAB creada por defecto");
             }
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.error("Error cargando configuración del TAB", e);
+            KindlyKlantab.LOGGER.error("Error cargando configuración del TAB", e);
             tabConfig = new TabConfig();
         }
     }
@@ -54,14 +54,14 @@ public class ConfigManager {
             if (Files.exists(announcementConfigPath)) {
                 String content = Files.readString(announcementConfigPath);
                 announcementConfig = GSON.fromJson(content, AnnouncementConfig.class);
-                KindlyKlanTab.LOGGER.info("Configuración de anuncios cargada");
+                KindlyKlantab.LOGGER.info("Configuración de anuncios cargada");
             } else {
                 announcementConfig = new AnnouncementConfig();
                 saveAnnouncementConfig();
-                KindlyKlanTab.LOGGER.info("Configuración de anuncios creada por defecto");
+                KindlyKlantab.LOGGER.info("Configuración de anuncios creada por defecto");
             }
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.error("Error cargando configuración de anuncios", e);
+            KindlyKlantab.LOGGER.error("Error cargando configuración de anuncios", e);
             announcementConfig = new AnnouncementConfig();
         }
     }
@@ -71,7 +71,7 @@ public class ConfigManager {
         try {
             Files.writeString(tabConfigPath, GSON.toJson(tabConfig));
         } catch (IOException e) {
-            KindlyKlanTab.LOGGER.error("Error guardando configuración del TAB", e);
+            KindlyKlantab.LOGGER.error("Error guardando configuración del TAB", e);
         }
     }
     
@@ -80,7 +80,7 @@ public class ConfigManager {
         try {
             Files.writeString(announcementConfigPath, GSON.toJson(announcementConfig));
         } catch (IOException e) {
-            KindlyKlanTab.LOGGER.error("Error guardando configuración de anuncios", e);
+            KindlyKlantab.LOGGER.error("Error guardando configuración de anuncios", e);
         }
     }
     
@@ -94,6 +94,6 @@ public class ConfigManager {
     
     public void reloadConfigs() {
         loadConfigs();
-        KindlyKlanTab.LOGGER.info("Configuraciones recargadas");
+        KindlyKlantab.LOGGER.info("Configuraciones recargadas");
     }
 } 

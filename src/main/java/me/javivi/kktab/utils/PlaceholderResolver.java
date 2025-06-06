@@ -1,6 +1,6 @@
 package me.javivi.kktab.utils;
 
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import me.javivi.kktab.managers.LuckPermsManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -56,7 +56,7 @@ public class PlaceholderResolver {
     
     private String resolveLuckPermsPlaceholders(String text, ServerPlayerEntity player) {
         try {
-            LuckPermsManager luckPerms = KindlyKlanTab.getLuckPermsManager();
+            LuckPermsManager luckPerms = KindlyKlantab.getLuckPermsManager();
             if (luckPerms != null && luckPerms.isAvailable()) {
                 // Placeholders básicos de LuckPerms
                 String prefix = luckPerms.getPrefix(player);
@@ -90,7 +90,7 @@ public class PlaceholderResolver {
                 text = text.replace("{GROUP}", "default");
             }
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.error("Error resolviendo placeholders de LuckPerms", e);
+            KindlyKlantab.LOGGER.error("Error resolviendo placeholders de LuckPerms", e);
         }
         
         return text;

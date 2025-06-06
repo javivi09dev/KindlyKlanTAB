@@ -1,6 +1,6 @@
 package me.javivi.kktab.mixins;
 
-import me.javivi.kktab.KindlyKlanTab;
+import me.javivi.kktab.KindlyKlantab;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.spongepowered.asm.mixin.Final;
@@ -32,16 +32,16 @@ public class PlayerManagerMixin {
     // Método auxiliar para actualizar el TAB de forma segura
     private void updateTabAfterPlayerChange() {
         try {
-            if (KindlyKlanTab.getTabManager() != null) {
+            if (KindlyKlantab.getTabManager() != null) {
                 // Programar la actualización en el siguiente tick del servidor
                 if (!players.isEmpty() && players.get(0).getServer() != null) {
                     players.get(0).getServer().execute(() -> {
-                        KindlyKlanTab.getTabManager().updateTabList();
+                        KindlyKlantab.getTabManager().updateTabList();
                     });
                 }
             }
         } catch (Exception e) {
-            KindlyKlanTab.LOGGER.debug("Error actualizando TAB después de cambio de jugador: " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error actualizando TAB después de cambio de jugador: " + e.getMessage());
         }
     }
 } 
