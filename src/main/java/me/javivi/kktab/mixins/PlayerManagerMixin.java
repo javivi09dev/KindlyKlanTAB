@@ -17,6 +17,12 @@ public class PlayerManagerMixin {
     
     @Shadow @Final private List<ServerPlayerEntity> players;
     
+    // Interceptar cuando un jugador se conecta por primera vez
+    @Inject(method = "onPlayerConnect", at = @At("RETURN"))
+    private void onPlayerConnect(net.minecraft.network.ClientConnection connection, ServerPlayerEntity player, net.minecraft.server.network.ConnectedClientData clientData, CallbackInfo ci) {
+        updateTabAfterPlayerChange();
+    }
+    
     // Interceptar cuando se respawnea/conecta un jugador
     @Inject(method = "respawnPlayer", at = @At("RETURN"))
     private void onPlayerRespawn(ServerPlayerEntity player, boolean alive, CallbackInfo ci) {

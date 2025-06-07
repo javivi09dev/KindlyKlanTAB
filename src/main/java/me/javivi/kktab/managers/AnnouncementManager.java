@@ -76,12 +76,11 @@ public class AnnouncementManager {
         String message = config.prefix + placeholderResolver.resolve(announcement.message);
         // Convertir \n en saltos de línea reales para mensajes multilinea
         message = message.replace("\\n", "\n");
-        Text messageText = Text.literal(message);
         
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
             // Verificar permisos si es necesario
             if (announcement.permission.isEmpty() || hasPermission(player, announcement.permission)) {
-                player.sendMessage(messageText, false);
+                sendAnnouncementToPlayer(player, message);
             }
         }
         
@@ -93,13 +92,96 @@ public class AnnouncementManager {
         String fullMessage = config.prefix + placeholderResolver.resolve(message);
         // Convertir \n en saltos de línea reales para mensajes multilinea
         fullMessage = fullMessage.replace("\\n", "\n");
-        Text messageText = Text.literal(fullMessage);
         
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            player.sendMessage(messageText, false);
+            sendAnnouncementToPlayer(player, fullMessage);
         }
         
         KindlyKlantab.LOGGER.info("Anuncio personalizado enviado: " + message);
+    }
+    
+    private void sendAnnouncementToPlayer(ServerPlayerEntity player, String message) {
+        AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
+        
+        // Determinar modo de visualización
+        String displayMode = config.displayMode.toLowerCase();
+        boolean isFormattedTitle = message.contains("▬") || message.contains("■") || message.contains("═");
+        
+        // Aplicar lógica de modo automático
+        if (displayMode.equals("auto")) {
+            if (config.useTitleForFormatted && isFormattedTitle) {
+                displayMode = "title";
+            } else {
+                displayMode = "chat";
+            }
+        }
+        
+        switch (displayMode) {
+            case "title":
+                sendAsTitle(player, message, config);
+                break;
+            case "actionbar":
+                sendAsActionBar(player, message);
+                break;
+            case "chat":
+            default:
+                sendAsChat(player, message);
+                break;
+        }
+    }
+    
+    private void sendAsTitle(ServerPlayerEntity player, String message, AnnouncementConfig config) {
+        try {
+            String[] lines = message.split("\n");
+            if (lines.length >= 3) {
+                // Usar título y subtítulo para mensajes largos
+                Text titleText = Text.literal(lines[1].trim()); // Segunda línea como título
+                Text subtitleText = Text.literal(lines.length > 2 ? lines[2].trim() : "");
+                
+                // Enviar título con configuración personalizada
+                var titlePacket = new net.minecraft.network.packet.s2c.play.TitleS2CPacket(titleText);
+                var subtitlePacket = new net.minecraft.network.packet.s2c.play.SubtitleS2CPacket(subtitleText);
+                var timesPacket = new net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket(
+                    config.titleFadeIn, config.titleStay, config.titleFadeOut
+                );
+                
+                player.networkHandler.sendPacket(timesPacket);
+                player.networkHandler.sendPacket(subtitlePacket);
+                player.networkHandler.sendPacket(titlePacket);
+            } else {
+                // Para mensajes cortos, usar solo título
+                Text titleText = Text.literal(message);
+                var titlePacket = new net.minecraft.network.packet.s2c.play.TitleS2CPacket(titleText);
+                var timesPacket = new net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket(
+                    config.titleFadeIn, config.titleStay, config.titleFadeOut
+                );
+                
+                player.networkHandler.sendPacket(timesPacket);
+                player.networkHandler.sendPacket(titlePacket);
+            }
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.warn("Error enviando título a " + player.getName().getString() + ", usando chat como fallback");
+            sendAsChat(player, message);
+        }
+    }
+    
+    private void sendAsActionBar(ServerPlayerEntity player, String message) {
+        try {
+            // Limpiar saltos de línea para actionbar (solo una línea)
+            String cleanMessage = message.replace("\n", " | ").trim();
+            Text actionBarText = Text.literal(cleanMessage);
+            
+            var actionBarPacket = new net.minecraft.network.packet.s2c.play.OverlayMessageS2CPacket(actionBarText);
+            player.networkHandler.sendPacket(actionBarPacket);
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.warn("Error enviando actionbar a " + player.getName().getString() + ", usando chat como fallback");
+            sendAsChat(player, message);
+        }
+    }
+    
+    private void sendAsChat(ServerPlayerEntity player, String message) {
+        Text messageText = Text.literal(message);
+        player.sendMessage(messageText, false);
     }
     
     private boolean hasPermission(ServerPlayerEntity player, String permission) {

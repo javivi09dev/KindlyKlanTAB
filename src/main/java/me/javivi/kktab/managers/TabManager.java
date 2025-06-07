@@ -71,10 +71,40 @@ public class TabManager {
         
         nameFormat = placeholderResolver.resolve(nameFormat, player);
         
-        // Actualizar el display name del jugador en la lista usando PlayerListEntry
+        // En Minecraft 1.21.1, actualizar el display name del jugador en el TAB
         Text displayName = Text.literal(nameFormat);
-        // Nota: En 1.21.1, el display name se maneja a través del PlayerListS2CPacket
-        // Por ahora simplemente almacenamos el formato para usar cuando sea necesario
+        
+        try {
+            // Método simplificado para actualizar el nombre en el TAB
+            // Usar el método más directo disponible en la API
+            
+            // Primero, establecer el custom name del jugador
+            player.setCustomName(displayName);
+            
+            // Crear packet de actualización usando el constructor correcto
+            var packet = new net.minecraft.network.packet.s2c.play.PlayerListS2CPacket(
+                net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME,
+                player
+            );
+            
+            // Enviar a todos los jugadores conectados
+            for (ServerPlayerEntity otherPlayer : server.getPlayerManager().getPlayerList()) {
+                otherPlayer.networkHandler.sendPacket(packet);
+            }
+            
+            KindlyKlantab.LOGGER.debug("Nombre TAB actualizado para " + player.getName().getString() + ": " + nameFormat);
+            
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.error("Error actualizando nombre en TAB para " + player.getName().getString() + ": " + e.getMessage());
+            
+            // Fallback: al menos establecer el custom name
+            try {
+                player.setCustomName(displayName);
+                KindlyKlantab.LOGGER.debug("Custom name establecido como fallback para " + player.getName().getString());
+            } catch (Exception fallbackError) {
+                KindlyKlantab.LOGGER.error("Error en fallback para " + player.getName().getString(), fallbackError);
+            }
+        }
     }
     
     private TabConfig.TabGroup getPlayerGroup(ServerPlayerEntity player) {
@@ -85,38 +115,50 @@ public class TabManager {
             LuckPermsManager luckPerms = KindlyKlantab.getLuckPermsManager();
             if (luckPerms != null && luckPerms.isAvailable()) {
                 String primaryGroup = luckPerms.getPrimaryGroup(player);
+                String prefix = luckPerms.getPrefix(player);
+                String suffix = luckPerms.getSuffix(player);
                 int weight = luckPerms.getWeight(player);
                 
-                // Buscar si tenemos configuración específica para este grupo
+                KindlyKlantab.LOGGER.debug("LuckPerms - Jugador: " + player.getName().getString() + 
+                    ", Grupo: " + primaryGroup + ", Prefix: " + prefix + ", Suffix: " + suffix + ", Weight: " + weight);
+                
+                // Buscar si tenemos configuración específica para este grupo de LuckPerms
                 for (TabConfig.TabGroup group : config.groups) {
                     if (group.permission.equals(primaryGroup)) {
                         // Usar el peso de LuckPerms si está disponible
                         if (weight > 0) {
                             group.priority = 1000 - weight; // Convertir peso a prioridad (mayor peso = menor prioridad)
                         }
+                        KindlyKlantab.LOGGER.debug("Usando grupo configurado: " + group.permission + " para " + player.getName().getString());
                         return group;
                     }
                 }
                 
-                // Si no hay configuración específica, crear un grupo dinámico basado en LuckPerms
-                String prefix = luckPerms.getPrefix(player);
-                String suffix = luckPerms.getSuffix(player);
-                
+                // Si hay prefix/suffix de LuckPerms pero no hay configuración específica, usar directamente LuckPerms
                 if (prefix != null || suffix != null) {
                     TabConfig.TabGroup dynamicGroup = new TabConfig.TabGroup();
                     dynamicGroup.permission = primaryGroup != null ? primaryGroup : "default";
-                    dynamicGroup.prefix = prefix != null ? prefix : "§7";
+                    dynamicGroup.prefix = prefix != null ? prefix : "";
                     dynamicGroup.suffix = suffix != null ? suffix : "";
                     dynamicGroup.priority = weight > 0 ? (1000 - weight) : 999;
+                    KindlyKlantab.LOGGER.debug("Creando grupo dinámico desde LuckPerms: " + dynamicGroup.permission + " para " + player.getName().getString());
                     return dynamicGroup;
+                }
+                
+                // Si LuckPerms está disponible pero no hay prefix/suffix, mapear grupo conocidos
+                if (primaryGroup != null) {
+                    TabConfig.TabGroup mappedGroup = mapLuckPermsGroupToConfig(primaryGroup, config);
+                    if (mappedGroup != null) {
+                        KindlyKlantab.LOGGER.debug("Mapeando grupo LuckPerms '" + primaryGroup + "' a '" + mappedGroup.permission + "' para " + player.getName().getString());
+                        return mappedGroup;
+                    }
                 }
             }
         } catch (Exception e) {
-            // Fallback silencioso si LuckPerms no está disponible
-            KindlyKlantab.LOGGER.debug("LuckPerms no disponible, usando sistema de grupos básico");
+            KindlyKlantab.LOGGER.debug("Error usando LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
         }
         
-        // Fallback al sistema original
+        // Fallback al sistema original basado en permisos/OP
         TabConfig.TabGroup selectedGroup = null;
         int highestPriority = Integer.MAX_VALUE;
         
@@ -129,13 +171,60 @@ public class TabManager {
         
         // Si no se encontró ningún grupo, usar el grupo por defecto
         if (selectedGroup == null) {
-            return config.groups.stream()
+            selectedGroup = config.groups.stream()
                     .filter(g -> g.permission.equals("default"))
                     .findFirst()
                     .orElse(new TabConfig.TabGroup("default", "§7", "", 999));
         }
         
+        KindlyKlantab.LOGGER.debug("Usando grupo fallback: " + selectedGroup.permission + " para " + player.getName().getString());
         return selectedGroup;
+    }
+    
+    private TabConfig.TabGroup mapLuckPermsGroupToConfig(String luckPermsGroup, TabConfig config) {
+        // Mapeo de grupos comunes de LuckPerms a la configuración del mod
+        String inputGroup = luckPermsGroup.toLowerCase();
+        String mappedGroup;
+        
+        // Mapeos comunes
+        switch (inputGroup) {
+            case "owner":
+            case "dueño":
+            case "propietario":
+                mappedGroup = "owner";
+                break;
+            case "admin":
+            case "administrator":
+            case "administrador":
+                mappedGroup = "admin";
+                break;
+            case "moderator":
+            case "mod":
+                mappedGroup = "mod";
+                break;
+            case "vip":
+            case "premium":
+            case "plus":
+                mappedGroup = "vip";
+                break;
+            case "default":
+            case "member":
+            case "player":
+            case "miembro":
+            case "jugador":
+                mappedGroup = "default";
+                break;
+            default:
+                mappedGroup = inputGroup; // Usar el grupo original si no hay mapeo
+                break;
+        }
+        
+        // Buscar el grupo mapeado en la configuración
+        final String finalMappedGroup = mappedGroup;
+        return config.groups.stream()
+                .filter(g -> g.permission.equals(finalMappedGroup))
+                .findFirst()
+                .orElse(null);
     }
     
     private boolean hasPermission(ServerPlayerEntity player, String permission) {

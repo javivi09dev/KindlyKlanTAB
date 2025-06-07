@@ -9,6 +9,10 @@ import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.command.Command;
+import me.javivi.kktab.config.AnnouncementConfig;
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class TabCommands {
     
@@ -31,7 +35,123 @@ public class TabCommands {
             .then(CommandManager.literal("toggle")
                 .executes(TabCommands::toggleTab))
             .then(CommandManager.literal("info")
-                .executes(TabCommands::showInfo)));
+                .executes(TabCommands::showInfo))
+            .then(CommandManager.literal("test")
+                .requires(source -> source.hasPermissionLevel(2))
+                .executes(context -> {
+                    ServerCommandSource source = context.getSource();
+                    MinecraftServer server = source.getServer();
+                    
+                    // Probar actualización del TAB
+                    KindlyKlantab.getTabManager().updateTabList();
+                    source.sendFeedback(() -> Text.literal("§aTAB actualizado manualmente para todos los jugadores"), false);
+                    
+                    return Command.SINGLE_SUCCESS;
+                }))
+            .then(CommandManager.literal("testannounce")
+                .requires(source -> source.hasPermissionLevel(2))
+                .then(CommandManager.argument("mode", StringArgumentType.word())
+                    .suggests((context, builder) -> {
+                        builder.suggest("chat");
+                        builder.suggest("title");
+                        builder.suggest("actionbar");
+                        return builder.buildFuture();
+                    })
+                    .then(CommandManager.argument("message", StringArgumentType.greedyString())
+                        .executes(context -> {
+                            ServerCommandSource source = context.getSource();
+                            String mode = StringArgumentType.getString(context, "mode");
+                            String message = StringArgumentType.getString(context, "message");
+                            
+                            // Crear anuncio de prueba temporal
+                            AnnouncementConfig.Announcement testAnnouncement = new AnnouncementConfig.Announcement(message);
+                            
+                            // Guardar configuración original
+                            AnnouncementConfig config = KindlyKlantab.getConfigManager().getAnnouncementConfig();
+                            String originalMode = config.displayMode;
+                            
+                            // Cambiar temporalmente el modo
+                            config.displayMode = mode;
+                            
+                            // Enviar anuncio
+                            KindlyKlantab.getAnnouncementManager().sendAnnouncement(testAnnouncement);
+                            
+                            // Restaurar configuración
+                            config.displayMode = originalMode;
+                            
+                            source.sendFeedback(() -> Text.literal("§aAnuncio de prueba enviado en modo " + mode), false);
+                            return Command.SINGLE_SUCCESS;
+                        }))
+                    ))
+            .then(CommandManager.literal("debug")
+                .requires(source -> source.hasPermissionLevel(2))
+                .then(CommandManager.argument("player", StringArgumentType.word())
+                    .executes(context -> {
+                        ServerCommandSource source = context.getSource();
+                        String playerName = StringArgumentType.getString(context, "player");
+                        MinecraftServer server = source.getServer();
+                        
+                        // Buscar el jugador
+                        ServerPlayerEntity targetPlayer = server.getPlayerManager().getPlayer(playerName);
+                        if (targetPlayer == null) {
+                            source.sendError(Text.literal("§cJugador no encontrado: " + playerName));
+                            return 0;
+                        }
+                        
+                        // Obtener información del grupo
+                        try {
+                            TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
+                            
+                            // Usar reflection para acceder al método privado getPlayerGroup
+                            var tabManager = KindlyKlantab.getTabManager();
+                            var method = tabManager.getClass().getDeclaredMethod("getPlayerGroup", ServerPlayerEntity.class);
+                            method.setAccessible(true);
+                            var group = (TabConfig.TabGroup) method.invoke(tabManager, targetPlayer);
+                            
+                            source.sendFeedback(() -> Text.literal("§6=== DEBUG TAB para " + playerName + " ==="), false);
+                            source.sendFeedback(() -> Text.literal("§eGrupo: §f" + group.permission), false);
+                            source.sendFeedback(() -> Text.literal("§ePrefix: §f" + group.prefix), false);
+                            source.sendFeedback(() -> Text.literal("§eSuffix: §f" + group.suffix), false);
+                            source.sendFeedback(() -> Text.literal("§ePrioridad: §f" + group.priority), false);
+                            
+                            // Información de LuckPerms si está disponible
+                            try {
+                                var luckPerms = KindlyKlantab.getLuckPermsManager();
+                                if (luckPerms != null && luckPerms.isAvailable()) {
+                                    String lpGroup = luckPerms.getPrimaryGroup(targetPlayer);
+                                    String lpPrefix = luckPerms.getPrefix(targetPlayer);
+                                    String lpSuffix = luckPerms.getSuffix(targetPlayer);
+                                    int lpWeight = luckPerms.getWeight(targetPlayer);
+                                    
+                                    source.sendFeedback(() -> Text.literal("§a=== LuckPerms Info ==="), false);
+                                    source.sendFeedback(() -> Text.literal("§aGrupo LP: §f" + lpGroup), false);
+                                    source.sendFeedback(() -> Text.literal("§aPrefix LP: §f" + lpPrefix), false);
+                                    source.sendFeedback(() -> Text.literal("§aSuffix LP: §f" + lpSuffix), false);
+                                    source.sendFeedback(() -> Text.literal("§aPeso LP: §f" + lpWeight), false);
+                                } else {
+                                    source.sendFeedback(() -> Text.literal("§cLuckPerms no disponible"), false);
+                                }
+                            } catch (Exception e) {
+                                source.sendFeedback(() -> Text.literal("§cError obteniendo info de LuckPerms: " + e.getMessage()), false);
+                            }
+                            
+                            // Probar actualización del nombre
+                            try {
+                                var updateMethod = tabManager.getClass().getDeclaredMethod("updatePlayerName", ServerPlayerEntity.class);
+                                updateMethod.setAccessible(true);
+                                updateMethod.invoke(tabManager, targetPlayer);
+                                source.sendFeedback(() -> Text.literal("§aNombre TAB actualizado para " + playerName), false);
+                            } catch (Exception e) {
+                                source.sendFeedback(() -> Text.literal("§cError actualizando nombre TAB: " + e.getMessage()), false);
+                            }
+                            
+                        } catch (Exception e) {
+                            source.sendError(Text.literal("§cError en debug: " + e.getMessage()));
+                            e.printStackTrace();
+                        }
+                        
+                        return Command.SINGLE_SUCCESS;
+                    })));
     }
     
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {

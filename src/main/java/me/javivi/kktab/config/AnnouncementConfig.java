@@ -9,6 +9,13 @@ public class AnnouncementConfig {
     public boolean randomOrder = false;
     public String prefix = ""; // Sin prefix por defecto
     
+    // Configuración de visualización de anuncios
+    public String displayMode = "auto"; // "chat", "title", "actionbar", "auto"
+    public boolean useTitleForFormatted = true; // Usar títulos para mensajes con decoraciones
+    public int titleFadeIn = 10; // ticks (0.5 segundos)
+    public int titleStay = 60; // ticks (3 segundos)
+    public int titleFadeOut = 20; // ticks (1 segundo)
+    
     public List<Announcement> announcements = new ArrayList<>();
     
     public AnnouncementConfig() {

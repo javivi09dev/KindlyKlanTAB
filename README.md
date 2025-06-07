@@ -120,6 +120,8 @@ Un mod server-side para Fabric 1.21.1 que permite personalizar completamente el 
 - `/kktab footer <texto>` - Cambia el footer del TAB
 - `/kktab toggle` - Activa/desactiva el TAB personalizado
 - `/kktab info` - Muestra información del estado del TAB
+- `/kktab test` - Probar actualización manual del TAB
+- `/kktab debug <jugador>` - Ver información detallada de un jugador
 
 ### Comandos de Anuncios (`/kkannounce`)
 **Requiere nivel de OP 3 o superior**
@@ -132,6 +134,7 @@ Un mod server-side para Fabric 1.21.1 que permite personalizar completamente el 
 - `/kkannounce toggle` - Activa/desactiva los anuncios automáticos
 - `/kkannounce interval <ticks>` - Cambia el intervalo de anuncios
 - `/kkannounce info` - Muestra información del sistema de anuncios
+- `/kkannounce testannounce <modo> <mensaje>` - Probar anuncio en modo específico
 
 ## 🎨 Códigos de Color
 
@@ -211,7 +214,6 @@ El mod ordena a los jugadores automáticamente por:
 - ✅ **Resuelto**: Integración con LuckPerms completamente funcional
 - ✅ **Resuelto**: Soporte para metadatos personalizados
 
-
 ## 📝 Licencia
 
 Todos los derechos reservados.
@@ -229,3 +231,56 @@ Las contribuciones son bienvenidas. Por favor:
 ## 📚 Documentación Adicional
 
 - [🔐 Guía de Integración con LuckPerms](LUCKPERMS_INTEGRATION.md)
+
+## 📌 Solución de Problemas
+
+### Los anuncios no aparecen centrados
+
+1. Verifica que `displayMode` esté en `"auto"` o `"title"`
+2. Usa el comando `/kktab testannounce title §6Tu mensaje` para probar
+3. Asegúrate de que `useTitleForFormatted` esté en `true`
+
+### Los prefijos no aparecen en el TAB
+
+1. Usa `/kktab debug <jugador>` para ver información detallada
+2. Verifica que `enableCustomNames` esté en `true`
+3. Usa `/kktab test` para forzar actualización del TAB
+4. Revisa que el jugador tenga el permiso correcto para su grupo
+
+### Debug Commands
+
+```bash
+# Ver información completa de un jugador
+/kktab debug NombreJugador
+
+# Probar diferentes modos de anuncios
+/kktab testannounce title "§6¡Mensaje de prueba!"
+/kktab testannounce actionbar "Mensaje en actionbar"
+/kktab testannounce chat "Mensaje en chat"
+
+# Forzar actualización del TAB
+/kktab test
+```
+
+### Logs Útiles
+
+El mod registra información importante en los logs del servidor:
+- Inicialización de managers
+- Detección de LuckPerms
+- Errores de actualización del TAB
+- Estados de configuración
+
+## 📌 Integración con LuckPerms
+
+Ver [LUCKPERMS_INTEGRATION.md](LUCKPERMS_INTEGRATION.md) para configuración detallada.
+
+## 📌 Soporte
+
+Para reportar bugs o solicitar características:
+1. Usa los comandos de debug para recopilar información
+2. Revisa los logs del servidor
+3. Proporciona tu configuración JSON
+
+## 📌 Licencia
+
+Este proyecto está bajo la Licencia MIT.
