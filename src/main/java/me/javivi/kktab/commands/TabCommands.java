@@ -10,7 +10,6 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.command.Command;
 import me.javivi.kktab.config.AnnouncementConfig;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -40,13 +39,9 @@ public class TabCommands {
                 .requires(source -> source.hasPermissionLevel(2))
                 .executes(context -> {
                     ServerCommandSource source = context.getSource();
-                    MinecraftServer server = source.getServer();
-                    
-                    // Probar actualización del TAB
                     KindlyKlantab.getTabManager().updateTabList();
                     source.sendFeedback(() -> Text.literal("§aTAB actualizado manualmente para todos los jugadores"), false);
-                    
-                    return Command.SINGLE_SUCCESS;
+                    return 1;
                 }))
             .then(CommandManager.literal("testannounce")
                 .requires(source -> source.hasPermissionLevel(2))
@@ -80,9 +75,8 @@ public class TabCommands {
                             config.displayMode = originalMode;
                             
                             source.sendFeedback(() -> Text.literal("§aAnuncio de prueba enviado en modo " + mode), false);
-                            return Command.SINGLE_SUCCESS;
-                        }))
-                    ))
+                            return 1;
+                        }))))
             .then(CommandManager.literal("debug")
                 .requires(source -> source.hasPermissionLevel(2))
                 .then(CommandManager.argument("player", StringArgumentType.word())
@@ -150,8 +144,8 @@ public class TabCommands {
                             e.printStackTrace();
                         }
                         
-                        return Command.SINGLE_SUCCESS;
-                    })));
+                        return 1;
+                    }))));
     }
     
     private static int reloadConfig(CommandContext<ServerCommandSource> context) {
