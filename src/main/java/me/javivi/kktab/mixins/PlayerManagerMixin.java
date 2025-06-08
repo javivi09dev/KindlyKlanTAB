@@ -32,6 +32,15 @@ public class PlayerManagerMixin {
     // Interceptar cuando se desconecta un jugador
     @Inject(method = "remove", at = @At("RETURN"))
     private void onPlayerRemove(ServerPlayerEntity player, CallbackInfo ci) {
+        // Limpiar equipos antes de actualizar
+        try {
+            if (KindlyKlantab.getTabManager() != null) {
+                KindlyKlantab.getTabManager().cleanupPlayer(player);
+            }
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.debug("Error limpiando jugador: " + e.getMessage());
+        }
+        
         updateTabAfterPlayerChange();
     }
     

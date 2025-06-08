@@ -71,39 +71,115 @@ public class TabManager {
         
         nameFormat = placeholderResolver.resolve(nameFormat, player);
         
-        // En Minecraft 1.21.1, actualizar el display name del jugador en el TAB
+        // Limpiar espacios extra y formatear correctamente
+        nameFormat = nameFormat.replaceAll("\\s+", " ").trim();
+        
         Text displayName = Text.literal(nameFormat);
         
         try {
-            // Método simplificado para actualizar el nombre en el TAB
-            // Usar el método más directo disponible en la API
+            // Método 1: Usar PlayerListEntry directamente (más compatible)
+            updatePlayerListEntry(player, displayName);
             
-            // Primero, establecer el custom name del jugador
-            player.setCustomName(displayName);
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.warn("Método principal falló para " + player.getName().getString() + ", intentando método alternativo");
             
-            // Crear packet de actualización usando el constructor correcto
+            // Método 2: Fallback usando teams de Minecraft
+            try {
+                updateUsingTeams(player, group);
+            } catch (Exception fallbackError) {
+                KindlyKlantab.LOGGER.error("Todos los métodos fallaron para " + player.getName().getString(), fallbackError);
+            }
+        }
+        
+        KindlyKlantab.LOGGER.debug("Actualizando TAB para " + player.getName().getString() + " con formato: " + nameFormat);
+    }
+    
+    /**
+     * Método principal: Actualizar usando PlayerListEntry
+     */
+    private void updatePlayerListEntry(ServerPlayerEntity player, Text displayName) {
+        try {
+            // Método simplificado que debería funcionar en 1.21.1
             var packet = new net.minecraft.network.packet.s2c.play.PlayerListS2CPacket(
                 net.minecraft.network.packet.s2c.play.PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME,
                 player
             );
             
-            // Enviar a todos los jugadores conectados
-            for (ServerPlayerEntity otherPlayer : server.getPlayerManager().getPlayerList()) {
-                otherPlayer.networkHandler.sendPacket(packet);
-            }
-            
-            KindlyKlantab.LOGGER.debug("Nombre TAB actualizado para " + player.getName().getString() + ": " + nameFormat);
-            
-        } catch (Exception e) {
-            KindlyKlantab.LOGGER.error("Error actualizando nombre en TAB para " + player.getName().getString() + ": " + e.getMessage());
-            
-            // Fallback: al menos establecer el custom name
+            // Intentar establecer el display name usando reflection si es necesario
             try {
                 player.setCustomName(displayName);
-                KindlyKlantab.LOGGER.debug("Custom name establecido como fallback para " + player.getName().getString());
-            } catch (Exception fallbackError) {
-                KindlyKlantab.LOGGER.error("Error en fallback para " + player.getName().getString(), fallbackError);
+            } catch (Exception e) {
+                KindlyKlantab.LOGGER.debug("No se pudo establecer custom name directamente");
             }
+            
+            // Enviar a todos los jugadores
+            for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {
+                onlinePlayer.networkHandler.sendPacket(packet);
+            }
+            
+            KindlyKlantab.LOGGER.debug("PlayerListEntry actualizado exitosamente para " + player.getName().getString());
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Error en updatePlayerListEntry", e);
+        }
+    }
+    
+    /**
+     * Método fallback: Usar equipos de Minecraft (más compatible pero limitado)
+     */
+    private void updateUsingTeams(ServerPlayerEntity player, TabConfig.TabGroup group) {
+        try {
+            var scoreboard = server.getScoreboard();
+            String teamName = "kktab_" + group.permission;
+            
+            // Crear o obtener equipo
+            var team = scoreboard.getTeam(teamName);
+            if (team == null) {
+                team = scoreboard.addTeam(teamName);
+                
+                // Configurar prefijo y sufijo del equipo
+                team.setPrefix(Text.literal(group.prefix));
+                team.setSuffix(Text.literal(group.suffix));
+                
+                // Configurar propiedades del equipo
+                team.setCollisionRule(net.minecraft.scoreboard.AbstractTeam.CollisionRule.NEVER);
+                team.setShowFriendlyInvisibles(false);
+            }
+            
+            // Añadir jugador al equipo usando el nombre correcto
+            String playerName = player.getGameProfile().getName();
+            team.getPlayerList().add(playerName);
+            
+            // Enviar actualización de equipo a todos los jugadores
+            var teamPacket = net.minecraft.network.packet.s2c.play.TeamS2CPacket.updateTeam(team, true);
+            for (ServerPlayerEntity onlinePlayer : server.getPlayerManager().getPlayerList()) {
+                onlinePlayer.networkHandler.sendPacket(teamPacket);
+            }
+            
+            KindlyKlantab.LOGGER.debug("Team actualizado exitosamente para " + player.getName().getString() + " en equipo " + teamName);
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Error en updateUsingTeams", e);
+        }
+    }
+    
+    /**
+     * Limpiar equipos cuando un jugador se desconecta
+     */
+    public void cleanupPlayer(ServerPlayerEntity player) {
+        try {
+            var scoreboard = server.getScoreboard();
+            String playerName = player.getGameProfile().getName();
+            
+            // Remover jugador de todos los equipos de KKTab
+            for (var team : scoreboard.getTeams()) {
+                if (team.getName().startsWith("kktab_")) {
+                    team.getPlayerList().remove(playerName);
+                }
+            }
+            
+        } catch (Exception e) {
+            KindlyKlantab.LOGGER.debug("Error limpiando equipos para " + player.getName().getString(), e);
         }
     }
     
@@ -142,6 +218,7 @@ public class TabManager {
                     dynamicGroup.suffix = suffix != null ? suffix : "";
                     dynamicGroup.priority = weight > 0 ? (1000 - weight) : 999;
                     KindlyKlantab.LOGGER.debug("Creando grupo dinámico desde LuckPerms: " + dynamicGroup.permission + " para " + player.getName().getString());
+                    KindlyKlantab.LOGGER.debug("Prefix LuckPerms: '" + prefix + "' -> Convertido: '" + dynamicGroup.prefix + "'");
                     return dynamicGroup;
                 }
                 

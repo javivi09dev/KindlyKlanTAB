@@ -145,6 +145,73 @@ public class TabCommands {
                         }
                         
                         return 1;
+                    })))
+            .then(CommandManager.literal("convertlp")
+                .requires(source -> source.hasPermissionLevel(4))
+                .executes(context -> {
+                    ServerCommandSource source = context.getSource();
+                    
+                    try {
+                        var luckPerms = KindlyKlantab.getLuckPermsManager();
+                        if (luckPerms == null || !luckPerms.isAvailable()) {
+                            source.sendError(Text.literal("§cLuckPerms no está disponible"));
+                            return 0;
+                        }
+                        
+                        source.sendFeedback(() -> Text.literal("§e⚠ Para convertir prefijos de LuckPerms de formato legacy (&) a moderno (§):"), false);
+                        source.sendFeedback(() -> Text.literal("§71. Ejecuta en consola: §f/lp group <grupo> meta setprefix \"§c§l[TU_PREFIX] §f\""), false);
+                        source.sendFeedback(() -> Text.literal("§72. O usa: §f/kktab debug <jugador> §7para ver el formato actual"), false);
+                        source.sendFeedback(() -> Text.literal("§73. El mod ahora convierte automáticamente & a § si es necesario"), false);
+                        
+                        // Mostrar ejemplos de conversión
+                        source.sendFeedback(() -> Text.literal("§6Ejemplos de conversión:"), false);
+                        source.sendFeedback(() -> Text.literal("§7Legacy: §f&c&l[DUEÑO] &f"), false);
+                        source.sendFeedback(() -> Text.literal("§7Moderno: §f§c§l[DUEÑO] §f"), false);
+                        
+                    } catch (Exception e) {
+                        source.sendError(Text.literal("§cError: " + e.getMessage()));
+                    }
+                    
+                    return 1;
+                }))
+            .then(CommandManager.literal("forceteam")
+                .requires(source -> source.hasPermissionLevel(3))
+                .then(CommandManager.argument("player", StringArgumentType.word())
+                    .executes(context -> {
+                        ServerCommandSource source = context.getSource();
+                        String playerName = StringArgumentType.getString(context, "player");
+                        MinecraftServer server = source.getServer();
+                        
+                        // Buscar el jugador
+                        ServerPlayerEntity targetPlayer = server.getPlayerManager().getPlayer(playerName);
+                        if (targetPlayer == null) {
+                            source.sendError(Text.literal("§cJugador no encontrado: " + playerName));
+                            return 0;
+                        }
+                        
+                        try {
+                            TabConfig config = KindlyKlantab.getConfigManager().getTabConfig();
+                            
+                            // Usar reflection para acceder al método privado getPlayerGroup
+                            var tabManager = KindlyKlantab.getTabManager();
+                            var method = tabManager.getClass().getDeclaredMethod("getPlayerGroup", ServerPlayerEntity.class);
+                            method.setAccessible(true);
+                            var group = (TabConfig.TabGroup) method.invoke(tabManager, targetPlayer);
+                            
+                            // Forzar uso del método de equipos
+                            var updateMethod = tabManager.getClass().getDeclaredMethod("updateUsingTeams", ServerPlayerEntity.class, TabConfig.TabGroup.class);
+                            updateMethod.setAccessible(true);
+                            updateMethod.invoke(tabManager, targetPlayer, group);
+                            
+                            source.sendFeedback(() -> Text.literal("§aForzado sistema de equipos para " + playerName + " con grupo " + group.permission), false);
+                            source.sendFeedback(() -> Text.literal("§ePrefix: " + group.prefix + " | Suffix: " + group.suffix), false);
+                            
+                        } catch (Exception e) {
+                            source.sendError(Text.literal("§cError forzando equipo: " + e.getMessage()));
+                            e.printStackTrace();
+                        }
+                        
+                        return 1;
                     }))));
     }
     

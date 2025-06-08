@@ -36,38 +36,71 @@ public class LuckPermsManager {
     
     @Nullable
     public String getPrefix(ServerPlayerEntity player) {
-        if (!isAvailable() || player == null) return null;
+        if (!isAvailable()) return "";
         
         try {
-            Object userManager = luckPerms.getClass().getMethod("getUserManager").invoke(luckPerms);
-            Object user = userManager.getClass().getMethod("getUser", UUID.class).invoke(userManager, player.getUuid());
-            if (user == null) return null;
+            Object user = getUser(player);
+            if (user == null) return "";
             
             Object cachedData = user.getClass().getMethod("getCachedData").invoke(user);
             Object metaData = cachedData.getClass().getMethod("getMetaData").invoke(cachedData);
-            return (String) metaData.getClass().getMethod("getPrefix").invoke(metaData);
+            String prefix = (String) metaData.getClass().getMethod("getPrefix").invoke(metaData);
+            
+            return convertLegacyColors(prefix != null ? prefix : "");
         } catch (Exception e) {
-            KindlyKlantab.LOGGER.debug("Error obteniendo prefijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
-            return null;
+            KindlyKlantab.LOGGER.debug("Error obteniendo prefix de LuckPerms para " + player.getName().getString(), e);
+            return "";
         }
     }
     
     @Nullable
     public String getSuffix(ServerPlayerEntity player) {
-        if (!isAvailable() || player == null) return null;
+        if (!isAvailable()) return "";
         
         try {
-            Object userManager = luckPerms.getClass().getMethod("getUserManager").invoke(luckPerms);
-            Object user = userManager.getClass().getMethod("getUser", UUID.class).invoke(userManager, player.getUuid());
-            if (user == null) return null;
+            Object user = getUser(player);
+            if (user == null) return "";
             
             Object cachedData = user.getClass().getMethod("getCachedData").invoke(user);
             Object metaData = cachedData.getClass().getMethod("getMetaData").invoke(cachedData);
-            return (String) metaData.getClass().getMethod("getSuffix").invoke(metaData);
+            String suffix = (String) metaData.getClass().getMethod("getSuffix").invoke(metaData);
+            
+            return convertLegacyColors(suffix != null ? suffix : "");
         } catch (Exception e) {
-            KindlyKlantab.LOGGER.debug("Error obteniendo sufijo de LuckPerms para " + player.getName().getString() + ": " + e.getMessage());
-            return null;
+            KindlyKlantab.LOGGER.debug("Error obteniendo suffix de LuckPerms para " + player.getName().getString(), e);
+            return "";
         }
+    }
+    
+    /**
+     * Convierte códigos de color legacy (&) a formato moderno (§)
+     */
+    private String convertLegacyColors(String text) {
+        if (text == null || text.isEmpty()) return text;
+        
+        // Convertir códigos de color legacy & a formato moderno §
+        return text.replace("&0", "§0")
+                  .replace("&1", "§1")
+                  .replace("&2", "§2")
+                  .replace("&3", "§3")
+                  .replace("&4", "§4")
+                  .replace("&5", "§5")
+                  .replace("&6", "§6")
+                  .replace("&7", "§7")
+                  .replace("&8", "§8")
+                  .replace("&9", "§9")
+                  .replace("&a", "§a")
+                  .replace("&b", "§b")
+                  .replace("&c", "§c")
+                  .replace("&d", "§d")
+                  .replace("&e", "§e")
+                  .replace("&f", "§f")
+                  .replace("&k", "§k")
+                  .replace("&l", "§l")
+                  .replace("&m", "§m")
+                  .replace("&n", "§n")
+                  .replace("&o", "§o")
+                  .replace("&r", "§r");
     }
     
     @Nullable
@@ -146,16 +179,17 @@ public class LuckPermsManager {
         }
     }
     
-    // Método para verificar si un usuario existe (útil para comandos)
-    @Nullable
-    public Object getUser(UUID uuid) {
-        if (!isAvailable()) return null;
+    /**
+     * Obtiene el usuario de LuckPerms para un jugador
+     */
+    private Object getUser(ServerPlayerEntity player) {
+        if (!isAvailable() || player == null) return null;
         
         try {
             Object userManager = luckPerms.getClass().getMethod("getUserManager").invoke(luckPerms);
-            return userManager.getClass().getMethod("getUser", UUID.class).invoke(userManager, uuid);
+            return userManager.getClass().getMethod("getUser", UUID.class).invoke(userManager, player.getUuid());
         } catch (Exception e) {
-            KindlyKlantab.LOGGER.debug("Error obteniendo usuario de LuckPerms: " + e.getMessage());
+            KindlyKlantab.LOGGER.debug("Error obteniendo usuario de LuckPerms para " + player.getName().getString(), e);
             return null;
         }
     }
